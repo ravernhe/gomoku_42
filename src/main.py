@@ -10,6 +10,8 @@ class Game:
     def init_board(self):
         self.board = [[0 for col in range(19)] for row in range(19)]
         self.capture = [0, 0]
+        #self.board[1][1] = 1; self.board[2][2] = 1;self.board[4][6] = 1; self.board[4][5] = 1 # Test 2_3 violation
+        self.print_board()
 
     def is_winner(self):
         print("Winner is", self.to_play)
@@ -18,6 +20,7 @@ class Game:
         # First check +2 to see if possible
         player = 1 if self.to_play == "black" else 2
         allied = []
+        # Check 2rd circle
         for check_y in range(y - 2, y + 4, 2):
             if check_y < 0 or check_y >= 19:
                 continue
@@ -26,9 +29,29 @@ class Game:
                     continue
                 if self.board[check_y][check_x] == player:
                     allied.append([check_y,check_x])
-        print(allied)
-        if len(allied) < 2:
-            return 0
+
+        if len(allied) >= 2:
+            count = 0
+            # Check 1rd circle
+            for e in allied:
+                test_y, test_x = int((e[0] + y) / 2), int((e[1] + x) / 2)
+                if self.board[test_y][test_x] == player:
+                    count += 1
+                    if count == 2:
+                        return 1
+            # Check 3rd circle
+            if count == 1:
+                for check_y in range(y - 3, y + 6, 3):
+                    if check_y < 0 or check_y >= 19:
+                        continue
+                    for check_x in range(x - 3, x + 6, 3):
+                        if check_x < 0 or check_x >= 19 or (check_x == x and check_y == y):
+                            continue
+                        if self.board[check_y][check_x] == player:
+                            count += 1
+                            if count == 2:
+                                return 1
+        return 0
 
     def is_valid_move(self, x, y):
         if x < 0 or x >= 19 or y < 0 or y >= 19 or self.board[y][x] != 0:
