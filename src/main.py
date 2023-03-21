@@ -13,104 +13,135 @@ class Game:
 
     def init_board(self):
         self.board = np.zeros((19, 19), dtype=np.uint8)
-        self.board[1, 1] = 2
-        self.board[2, 2] = 2
-        self.board[0, 0] = 1
-        self.board[4, 4] = 2
-        self.board[5, 5] = 2
-        self.board[6, 6] = 1
+        self.board[1, 1] = 1
+        self.board[2, 2] = 1
+        # self.board[0, 0] = 1
+        # self.board[4, 4] = 2
+        # self.board[5, 5] = 2
+        # self.board[6, 6] = 1
 
-        self.board[1, 5] = 2
-        self.board[2, 4] = 2
-        self.board[0, 6] = 1
-        self.board[4, 2] = 2
-        self.board[5, 1] = 2
-        self.board[6, 0] = 1
+        self.board[1, 5] = 1
+        self.board[2, 4] = 1
+        # self.board[0, 6] = 1
+        # self.board[4, 2] = 2
+        # self.board[5, 1] = 2
+        # self.board[6, 0] = 1
 
-        self.board[3, 0] = 1
-        self.board[3, 1] = 2
-        self.board[3, 2] = 2
-        self.board[3, 4] = 2
-        self.board[3, 5] = 2
-        self.board[3, 6] = 1
+        # self.board[3, 0] = 1
+        # self.board[3, 1] = 2
+        # self.board[3, 2] = 2
+        # self.board[3, 4] = 2
+        # self.board[3, 5] = 2
+        # self.board[3, 6] = 1
 
-
-        self.board[0, 3] = 1
-        self.board[1, 3] = 2
-        self.board[2, 3] = 2
-        self.board[4, 3] = 2
-        self.board[5, 3] = 2
-        self.board[6, 3] = 1
+        # self.board[0, 3] = 1
+        # self.board[1, 3] = 2
+        # self.board[2, 3] = 2
+        # self.board[4, 3] = 2
+        # self.board[5, 3] = 2
+        # self.board[6, 3] = 1
 
         self.print_board()
 
     def is_winner(self):
         print("Winner is", self.to_play)
 
-    def get_axes(self, x, y):
-        pass
-
     def is_capturing(self, x, y, p, e):
-        
+
         captured = []
         axes = [
-            (max(0, x-3), x+1, y, y),
-            (x, min(19, x+4), y, y),
-            (x, x, max(0, y-3), y+1),
-            (x, x, y, min(19, y+4)),
-            ]
+            (max(0, x - 3), x + 1, y, y),
+            (x, min(19, x + 4), y, y),
+            (x, x, max(0, y - 3), y + 1),
+            (x, x, y, min(19, y + 4)),
+        ]
 
         for c, axis in enumerate(axes):
             if axis[0] == axis[1]:
-                section = self.board[axis[0], axis[2]:axis[3]]
+                section = self.board[axis[2]:axis[3], axis[0]]
             else:
-                section = self.board[axis[0]:axis[1], axis[2]]
+                section = self.board[axis[2], axis[0]:axis[1]]
 
-            if len(section) == 4 and  np.all(section == [p, e, e, p]):
+            if len(section) == 4 and np.all(section == [p, e, e, p]):
                 if c == 0:
-                    opponent_coords = [(y, x-2), (y, x-1)]
+                    opponent_coords = [(y, x - 2), (y, x - 1)]
                 elif c == 1:
-                    opponent_coords = [(y, x+1), (y, x+2)]
+                    opponent_coords = [(y, x + 1), (y, x + 2)]
                 elif c == 2:
-                    opponent_coords = [(y-2, x), (y-1, x)]
+                    opponent_coords = [(y - 2, x), (y - 1, x)]
                 else:
-                    opponent_coords = [(y+1, x), (y+2, x)]
-                
+                    opponent_coords = [(y + 1, x), (y + 2, x)]
+
                 captured.extend([tuple(coord) for coord in opponent_coords])
 
         sections = []
-        diag = self.board.diagonal(x-y)
+        diag = self.board.diagonal(x - y)
         r_x = 18 - x
-        reversed_diag = np.fliplr(self.board).diagonal(r_x-y)
+        reversed_diag = np.fliplr(self.board).diagonal(r_x - y)
 
-        if x-y >= 0:
-            sections.append(diag[max(y-3, 0):y+1])
-            sections.append(diag[y:min(y+4, 19)])
-            sections.append(reversed_diag[max(y-3, 0):y+1])
-            sections.append(reversed_diag[y:min(y+4, 19)])
+        if x - y >= 0:
+            sections.append(diag[max(y - 3, 0):y + 1])
+            sections.append(diag[y:min(y + 4, 19)])
+            sections.append(reversed_diag[max(y - 3, 0):y + 1])
+            sections.append(reversed_diag[y:min(y + 4, 19)])
         else:
-            sections.append(diag[max(x-3, 0):x+1])
-            sections.append(diag[x:min(x+4, 19)])
-            sections.append(reversed_diag[max(r_x-3, 0):r_x+1])
-            sections.append(reversed_diag[r_x:min(r_x+4, 19)])
-        
+            sections.append(diag[max(x - 3, 0):x + 1])
+            sections.append(diag[x:min(x + 4, 19)])
+            sections.append(reversed_diag[max(r_x - 3, 0):r_x + 1])
+            sections.append(reversed_diag[r_x:min(r_x + 4, 19)])
+
         for c, section in enumerate(sections):
             if len(section) == 4 and np.all(section == [p, e, e, p]):
                 if c == 0:
-                    opponent_coords = [(y-2, x-2), (y-1, x-1)]
+                    opponent_coords = [(y - 2, x - 2), (y - 1, x - 1)]
                 elif c == 1:
-                    opponent_coords = [(y+1, x+1), (y+2, x+2)]
+                    opponent_coords = [(y + 1, x + 1), (y + 2, x + 2)]
                 elif c == 2:
-                    opponent_coords = [(y-2, x+2), (y-1, x+1)]
+                    opponent_coords = [(y - 2, x + 2), (y - 1, x + 1)]
                 else:
-                    opponent_coords = [(y+1, x-1), (y+2, x-2)]
-                
+                    opponent_coords = [(y + 1, x - 1), (y + 2, x - 2)]
+
                 captured.extend([tuple(coord) for coord in opponent_coords])
         return captured
 
-    def double_three(self, x, y):
-
+    def free_three(self, axe, p, e):
+        if axe.find(f"0{p}{p}{p}0") != -1 or axe.find(f"0{p}0{p}{p}0") != -1 or axe.find(f"0{p}{p}0{p}0") != -1:
+            return 1
+        if axe.find(f"{p}{p}{p}{p}{p}") != -1:
+            return -2
+        if axe.find(f"{p}{p}{p}{p}") != -1:
+            return -1
         return 0
+
+    def double_three(self, x, y, p, e):
+        count = 0
+        axes = [
+            self.board[max(0, y - 4):min(19, y + 5), x],
+            self.board[y, max(0, x - 4):min(19, x + 5)]
+        ]
+
+        diag = self.board.diagonal(x - y)
+        r_x = 18 - x
+        reversed_diag = np.fliplr(self.board).diagonal(r_x - y)
+
+        if x - y >= 0:
+            axes.append(diag[max(y - 4, 0):min(y + 5, 19)])
+            axes.append(reversed_diag[max(y - 4, 0):min(y + 5, 19)])
+        else:
+            axes.append(diag[max(x - 4, 0):min(x + 5, 19)])
+            axes.append(reversed_diag[max(r_x - 4, 0):min(r_x + 5, 19)])
+
+        for axe in axes:
+            axe = "".join(map(str, axe))
+            c = self.free_three(axe, p, e)
+            if c == -1:
+                return False
+            if c == -2:
+                return False
+            count += c
+            if count == 2:
+                return True
+        return False
 
     def check_move(self, x, y):
         if x < 0 or x >= 19 or y < 0 or y >= 19 or self.board[y, x] != 0:
@@ -121,13 +152,14 @@ class Game:
         self.board[y, x] = p
         captured = self.is_capturing(x, y, p, e)
         if captured:
+            print("Captured at :", captured)
             for coord in captured:
                 self.board[coord] = 0
         else:
-            if self.double_three(p, e):
+            if self.double_three(x, y, p, e):
                 print("Double-three violation.")
                 self.board[y, x] = 0
-            return 0
+                return 0
         return 1
 
     def get_move(self):
