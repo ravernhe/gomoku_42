@@ -1,0 +1,20 @@
+Minmax Wiki :
+https://fr.wikipedia.org/wiki/Algorithme_minimax
+
+Limiter node visité :
+https://fr.wikipedia.org/wiki/%C3%89lagage_alpha-b%C3%AAta
+
+La plupart des améliorations d'alpha-bêta sont destinées à augmenter le nombre de coupes pour augmenter les nœuds qui ne sont pas examinés. Cela s'obtient grâce à des heuristiques comme l'exploration en premier des coups qui ont permis d'effectuer des coupes dans des nœuds du même niveau (killer move) ; 
+d'autres améliorations permettent de rétrécir l'intervalle de départ entre les valeurs alpha et bêta utilisées dans le nœud racine et débouchent sur des améliorations comme Negascout ou MTD-F.
+
+On peut trier les positions à tester à chaque profondeur testée, pour améliorer le temps ou la profondeur totale de calcul à chaque demi-coup, selon la limitation en profondeur totale ou en temps de calcul à chaque demi-coup.
+
+New heuristic algorithm to improve the Minimax for Gomoku artificial intelligence :
+https://dr.lib.iastate.edu/entities/publication/1a52dada-765b-4ed8-ac03-4ba414169138
+
+Use of bitmasks for board search and simple implementation :
+https://medium.com/@LukeASalamone/creating-an-ai-for-gomoku-28a4c84c7a52
+https://github.com/lukesalamone/gomoku-2049
+
+Opening book :
+https://en.boardgamearena.com/doc/Tips_pente
