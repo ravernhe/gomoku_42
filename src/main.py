@@ -60,8 +60,8 @@ class Game:
 
     def is_capturing(self, x, y, p, e, axes):
         captured = []
-        val_neg = [(-2, 0, -1, 0), (0, -2, 0, -1), (-2, -2, -1, -1), (-2, 2, -1, 1)] # A sortir d'ici pour ne pas repeter la creation d'un truc qui ne va jamais bouger et moi j'aime biene ecrire truc avec un k comme truck
-        val_pos =[(1, 0, 2, 0), (0, 1, 0, 2), (1, 1, 2, 2), (1, -1, 2, -2)]
+        val_neg = [(-2, 0, -1, 0), (0, -2, 0, -1), (-2, -2, -1, -1), (-2, 2, -1, 1)]  # A sortir d'ici pour ne pas repeter la creation d'un truc qui ne va jamais bouger et moi j'aime biene ecrire truc avec un k comme truck
+        val_pos = [(1, 0, 2, 0), (0, 1, 0, 2), (1, 1, 2, 2), (1, -1, 2, -2)]
 
         for c, axe in enumerate(axes):
             axe = "".join(map(str, axe))
@@ -90,17 +90,33 @@ class Game:
     def double_three(self, p, axes):
         count = 0
 
-        for axe in axes:
+        for i, axe in enumerate(axes):
             axe = "".join(map(str, axe))
             c = self.free_three(axe, p)
             if c == -1:
-                return False
+                return False, -1
             if c == -2:
-                return False
+                return False, i
             count += c
             if count == 2:
-                return True
-        return False
+                return True, -1
+        return False, -1
+
+    def check_win(self, x, y, p, e, axe_nb):
+        axe_norm = [(1, 0), (0, 1), (1, 1), (1, -1)]  # LA
+        c = 1
+        for direction in [-1, 1]:
+            x_tmp = x + direction * axe_norm[axe_nb][0]
+            y_tmp = y + direction * axe_norm[axe_nb][1]
+            while 19 > y_tmp >= 0 and 19 > x_tmp >= 0 and self.board[y_tmp, x_tmp] == p:
+                c += 1
+                if self.check_capturable(y_tmp, x_tmp, e):  # e utile ?
+                    c = 0
+                    break
+                if c == 5:
+                    return 1  # win
+                y_tmp += direction * axe_norm[axe_nb][0]
+                x_tmp += direction * axe_norm[axe_nb][1]
 
     def check_move(self, x, y):
         if x < 0 or x >= 19 or y < 0 or y >= 19 or self.board[y, x] != 0:
@@ -117,10 +133,13 @@ class Game:
             for coord in captured:
                 self.board[coord] = 0
         else:
-            if self.double_three(p, axes):
+            double_three, axe = self.double_three(p, axes)
+            if double_three:
                 print("Double-three violation.")
                 self.board[y, x] = 0
                 return 0
+            if axe != -1:
+                self.check_win(x, y, p, e, axe)
         return 1
 
     def get_move(self):
