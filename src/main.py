@@ -18,23 +18,28 @@ class Game:
 
         # self.board[18, 17] = 2; self.board[18, 16] = 2; self.board[18, 15] = 1
         # self.board[17, 18] = 2; self.board[16, 18] = 2; self.board[15, 18] = 1
-        self.board[1, 1] = 2;self.board[2, 2] = 2;self.board[0, 0] = 1;self.board[4, 4] = 2;self.board[5, 5] = 2;self.board[6, 6] = 1
+        # self.board[1, 1] = 2;self.board[2, 2] = 2;self.board[0, 0] = 1;self.board[4, 4] = 2;self.board[5, 5] = 2;self.board[6, 6] = 1
 
-        self.board[1, 5] = 2;self.board[2, 4] = 2;self.board[0, 6] = 1;self.board[4, 2] = 2;self.board[5, 1] = 2;self.board[6, 0] = 1
+        # self.board[1, 5] = 2;self.board[2, 4] = 2;self.board[0, 6] = 1;self.board[4, 2] = 2;self.board[5, 1] = 2;self.board[6, 0] = 1
 
-        self.board[3, 0] = 1
-        self.board[3, 1] = 2
-        self.board[3, 2] = 2
-        self.board[3, 4] = 2
-        self.board[3, 5] = 2
-        self.board[3, 6] = 1
+        # self.board[3, 0] = 1
+        # self.board[3, 1] = 2
+        # self.board[3, 2] = 2
+        # self.board[3, 4] = 2
+        # self.board[3, 5] = 2
+        # self.board[3, 6] = 1
 
-        self.board[0, 3] = 1
-        self.board[1, 3] = 2
-        self.board[2, 3] = 2
-        self.board[4, 3] = 2
-        self.board[5, 3] = 2
-        self.board[6, 3] = 1
+        self.board[0, 3] = 2
+        self.board[1, 2] = 2
+        self.board[1, 3] = 1
+        self.board[1, 4] = 1
+        self.board[2, 3] = 1
+        # self.board[3, 3] = 2
+        self.board[4, 3] = 1
+        self.board[5, 3] = 1
+        self.board[6, 2] = 1
+        self.board[7, 1] = 2
+        self.board[6, 3] = 2
 
         self.print_board()
 
@@ -49,13 +54,16 @@ class Game:
         diag = self.board.diagonal(x - y)
         r_x = 18 - x
         reversed_diag = np.fliplr(self.board).diagonal(r_x - y)
-
-        if x - y >= 0:
-            axes.append(diag[max(y - 3, 0):min(y + 4, 19)])
+        # FIX REV DIAG, NEED FURTHER TESTING
+        if r_x - y >= 0:
             axes.append(reversed_diag[max(y - 3, 0):min(y + 4, 19)])
         else:
-            axes.append(diag[max(x - 3, 0):min(x + 4, 19)])
             axes.append(reversed_diag[max(r_x - 3, 0):min(r_x + 4, 19)])
+        
+        if x - y >= 0:
+            axes.append(diag[max(y - 3, 0):min(y + 4, 19)])
+        else:
+            axes.append(diag[max(x - 3, 0):min(x + 4, 19)])
         return axes
 
     def is_capturing(self, x, y, p, e, axes):
@@ -102,18 +110,51 @@ class Game:
                 return True, -1
         return False, -1
 
+    def check_capturable(self, y, x, p, e):
+        axes = [
+            self.board[max(0, y - 2):min(19, y + 3), x],
+            self.board[y, max(0, x - 2):min(19, x + 3)]
+        ]
+        diag = self.board.diagonal(x - y)
+        r_x = 18 - x
+        reversed_diag = np.fliplr(self.board).diagonal(r_x - y)
+        # FIX REV DIAG, NEED FURTHER TESTING
+        if r_x - y>= 0:
+            axes.append(reversed_diag[max(y - 2, 0):min(y + 3, 19)])
+        else :
+            axes.append(reversed_diag[max(r_x - 2, 0):min(r_x + 3, 19)])
+
+        if x - y >= 0:
+            axes.append(diag[max(y - 2, 0):min(y + 3, 19)])
+        else:
+            axes.append(diag[max(x - 2, 0):min(x + 3, 19)])
+
+        for axe in axes:
+            print(axe)
+            axe = "".join(map(str, axe))
+            len_axe = len(axe)
+            if len_axe < 4:
+                continue
+            index_capture = [axe.find(f"{e}{p}{p}0"), axe.find(f"0{p}{p}{e}")]  # Can be captured
+            if index_capture[0] != -1 or index_capture[1] != -1:
+                return 1
+        return 0
+
     def check_win(self, x, y, p, e, axe_nb):
         axe_norm = [(1, 0), (0, 1), (1, 1), (1, -1)]  # LA
         c = 1
         for direction in [-1, 1]:
-            x_tmp = x + direction * axe_norm[axe_nb][0]
-            y_tmp = y + direction * axe_norm[axe_nb][1]
+            y_tmp = y + direction * axe_norm[axe_nb][0]
+            x_tmp = x + direction * axe_norm[axe_nb][1]
             while 19 > y_tmp >= 0 and 19 > x_tmp >= 0 and self.board[y_tmp, x_tmp] == p:
+                print("Coord tested:", y_tmp, x_tmp)
                 c += 1
-                if self.check_capturable(y_tmp, x_tmp, e):  # e utile ?
+                if self.check_capturable(y_tmp, x_tmp, p, e):
+                    print(y_tmp, x_tmp, "can be captured")
                     c = 0
                     break
                 if c == 5:
+                    print("Not capturable")
                     return 1  # win
                 y_tmp += direction * axe_norm[axe_nb][0]
                 x_tmp += direction * axe_norm[axe_nb][1]
